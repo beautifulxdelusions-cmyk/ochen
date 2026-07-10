@@ -1,0 +1,35 @@
+{
+  "name": "ochen",
+  "version": "0.1.0",
+  "description": "Ochen — an open-source terminal agent. Agentic coder that routes through Trismegistus AI blends (Base Intel free / Pro / Ultra) or any OpenAI-compatible endpoint.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "ochen": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "tsc -p tsconfig.json && node dist/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "keywords": [
+    "agent",
+    "terminal",
+    "cli",
+    "llm",
+    "ai",
+    "coding-agent",
+    "trismegistus"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.1",
+    "typescript": "^5.9.3"
+  }
+}

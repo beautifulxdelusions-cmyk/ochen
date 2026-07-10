@@ -123,13 +123,20 @@ export function buildTools(root: string): ToolDef[] {
         required: ["pattern"],
       },
       run: async (a) => {
-        const args = ["-n", "-I", "--hidden", "--glob", String(a.glob ?? "!{.git,node_modules}/**")];
-        args.push(String(a.pattern));
+        // Portable: BSD grep (macOS) and GNU grep both support -r -n -I.
+        // Exclude noisy dirs; if grep hits an unreadable socket it still prints
+        // matches to stdout, so we treat partial output as success.
+        const args = ["-r", "-n", "-I", "--exclude-dir=.git", "--exclude-dir=node_modules"];
+        args.push("--", String(a.pattern));
         try {
-          const { stdout } = await exec("grep", args, { cwd: root, maxBuffer: 2 * 1024 * 1024 });
-          return trunc(stdout);
+          const { stdout } = await exec("grep", args, { cwd: root, maxBuffer: 4 * 1024 * 1024 });
+          const lines = stdout.split("\n").filter(Boolean);
+          return trunc(lines.join("\n") || "(no matches)");
         } catch (e: any) {
+          // grep exits 1 = no matches (clean); 2 = error (but may have partial stdout)
           if (e.code === 1) return "(no matches)";
+          const partial = (e.stdout || "").split("\n").filter(Boolean);
+          if (partial.length) return trunc(partial.join("\n") + "\n…(some paths unreadable)");
           return trunc(`grep error: ${e.stderr ?? e.message}`);
         }
       },
